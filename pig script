@@ -1,0 +1,34 @@
+--pig script for mapreduce mode
+
+Register /usr/local/pig/lib/piggybank.jar;
+DEFINE XPath org.apache.pig.piggybank.evaluation.xml.XPath();
+
+--loading data from hdfs using flume
+load_data = LOAD '/development_analysis/' using org.apache.pig.piggybank.storage.XMLLoader('row') as (x:chararray);
+
+--cleaning StatewiseDistrictwisePhysicalProgress.xml dataset
+
+clean_xml = FOREACH load_data GENERATE XPath(x, 'row/State_Name'),
+XPath(x, 'row/District_Name'),
+(int)XPath(x, 'row/Project_Objectives_IHHL_BPL') as obj,
+XPath(x, 'row/Project_Objectives_IHHL_APL'),
+XPath(x, 'row/Project_Objectives_IHHL_TOTAL'), 
+XPath(x, 'row/Project_Objectives_SCW'),
+XPath(x, 'row/Project_Objectives_School_Toilets'),
+XPath(x, 'row/Project_Objectives_Anganwadi_Toilets') ,
+XPath(x, 'row/Project_Objectives_RSM'),
+XPath(x, 'row/Project_Objectives_PC'),
+(int)XPath(x, 'row/Project_Performance-IHHL_BPL') as per ,
+XPath(x, 'row/Project_Performance-IHHL_APL'),
+XPath(x, 'row/Project_Performance-IHHL_TOTAL') ,
+XPath(x, 'row/Project_Performance-SCW'),
+XPath(x, 'row/Project_Performance-School_Toilets'),
+XPath(x, 'row/Project_Performance-Anganwadi_Toilets'),
+XPath(x, 'row/Project_Performance-RSM'),
+XPath(x, 'row/Project_Performance-PC');
+
+
+
+
+
+

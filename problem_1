@@ -1,0 +1,49 @@
+--1. Find out the districts who achieved 100 percent objective in BPL cards.Export the results to mysql using sqoop.
+
+--code:
+
+--pig  filter script
+
+ completed_obj = filter clean_xml by obj == per;
+
+--storing the relation in hdfs
+	
+store completed_obj into 'completed_bpl_obj';
+
+--mysql code
+
+sudo  service mysqld start;
+
+mysql -u root;
+
+create database bplanalysis;
+
+use bplanalysis;
+
+--creating the table
+
+create table completedobjective(
+statename varchar(30),districtname varchar(30),pobj_bpl int,
+pobj_apl int,pobj_total int,pobj_scw int, pobj_sch_toilet int,
+pobj_anganwadi_toilet int,pobj_rsm int,pobj_pc int,
+pper_bpl int,pper_apl int,pper_total int,pper_scw int,pper_sch_toilet int,
+pper_anganwadi_toilet int,pper_rsm int,pper_pc int);
+
+grant all on *.* to 'root'@'localhost' with grant option;
+
+flush privileges;
+commit;
+
+exit;
+
+-- sqoop export statement
+
+sqoop export --connect jdbc:mysql://localhost/bplanalysis --username 'root' -P --table 'completedobjective' --export-dir '/user/acadgild/completed_bpl_obj' --input-fields-terminated-by '\t' -m 1;
+
+
+mysql -u root;
+
+use bplanalysis;
+
+select statename,districtname from completedobjective;
+

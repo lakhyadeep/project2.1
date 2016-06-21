@@ -1,0 +1,49 @@
+--2. Write a Pig UDF to filter the districts which have reached 80% of objectives of BPL cards. Export the results to MySQL using Sqoop.
+
+--code:
+
+--registering udf
+
+ Register /home/acadgild/workspace/pigudf.jar;
+
+--filtering the dataset
+
+ filter_value = filter clean_xml by pigudf.myudf(obj,per);
+
+--storing the relation in hdfs
+	
+store filter_value into 'districtwise_bpl_data';
+
+--mysql code
+
+mysql -u root;
+
+
+use bplanalysis;
+
+--creating the table
+
+create table performance(
+statename varchar(30),districtname varchar(30),pobj_bpl int,
+pobj_apl int,pobj_total int,pobj_scw int, pobj_sch_toilet int,
+pobj_anganwadi_toilet int,pobj_rsm int,pobj_pc int,
+pper_bpl int,pper_apl int,pper_total int,pper_scw int,pper_sch_toilet int,
+pper_anganwadi_toilet int,pper_rsm int,pper_pc int);
+grant all on *.* to 'root'@'localhost' with grant option;
+
+flush privileges;
+commit;
+
+exit;
+
+-- sqoop export statement
+
+sqoop export --connect jdbc:mysql://localhost/bplanalysis --username 'root' -P --table 'performance' --export-dir '/user/acadgild/districtwise_bpl_data' --input-fields-terminated-by '\t' -m 1;
+
+
+mysql -u root;
+
+use bplanalysis;
+
+select statename,districtname from performance;
+
